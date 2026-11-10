@@ -1,0 +1,30 @@
+transaction_id,date,description,category,amount,payment_method
+NOV002,2026-11-02,Electricity bill,Bills,760.0,UPI
+NOV003,2026-11-03,Internet bill,Bills,499.0,UPI
+NOV004,2026-11-04,Mobile recharge,Bills,299.0,UPI
+NOV005,2026-11-05,Groceries,Food,1550.0,UPI
+NOV006,2026-11-06,Lunch,Food,250.0,Cash
+NOV007,2026-11-07,Snacks,Food,220.0,Cash
+NOV008,2026-11-08,Bus pass,Travel,450.0,UPI
+NOV009,2026-11-09,Auto fare,Travel,280.0,Cash
+NOV010,2026-11-10,Assignment material,Education,550.0,UPI
+NOV011,2026-11-11,Online course,Education,999.0,UPI
+NOV012,2026-11-12,Dress,Shopping,1250.0,UPI
+NOV013,2026-11-13,Skincare,Shopping,600.0,UPI
+NOV014,2026-11-14,Movie ticket,Entertainment,350.0,UPI
+NOV015,2026-11-15,Music subscription,Entertainment,119.0,UPI
+NOV016,2026-11-16,Medicine,Healthcare,220.0,UPI
+NOV017,2026-11-17,Doctor visit,Healthcare,350.0,UPI
+NOV018,2026-11-18,Tea and coffee,Food,250.0,Cash
+NOV019,2026-11-19,Dinner,Food,350.0,UPI
+NOV020,2026-11-20,Cab fare,Travel,350.0,UPI
+NOV021,2026-11-21,Laundry,Other,220.0,Cash
+NOV022,2026-11-22,Gift,Shopping,750.0,UPI
+NOV023,2026-11-23,Printing,Education,150.0,Cash
+NOV024,2026-11-24,Vegetables,Food,420.0,Cash
+NOV025,2026-11-25,Household supplies,Housing,320.0,UPI
+NOV026,2026-11-26,Street food,Food,230.0,Cash
+NOV027,2026-11-27,Recharge,Bills,100.0,UPI
+NOV028,2026-11-28,Personal care,Other,300.0,UPI
+,2026-11-02,,bills,2000.0,
+,2026-11-03,,Food,5000.0,
