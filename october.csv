@@ -1,0 +1,29 @@
+transaction_id,date,description,category,amount,payment_method
+OCT001,2026-10-01,Hostel fee,Housing,6500,UPI
+OCT002,2026-10-02,Electricity bill,Bills,680,UPI
+OCT003,2026-10-03,Internet bill,Bills,499,UPI
+OCT004,2026-10-04,Mobile recharge,Bills,299,UPI
+OCT005,2026-10-05,Groceries,Food,1350,UPI
+OCT006,2026-10-06,Lunch,Food,190,Cash
+OCT007,2026-10-07,Snacks,Food,150,Cash
+OCT008,2026-10-08,Bus pass,Travel,450,UPI
+OCT009,2026-10-09,Auto fare,Travel,180,Cash
+OCT010,2026-10-10,Lab record,Education,420,UPI
+OCT011,2026-10-11,Course material,Education,350,UPI
+OCT012,2026-10-12,Top,Shopping,750,UPI
+OCT013,2026-10-13,Skincare,Shopping,450,UPI
+OCT014,2026-10-14,Movie ticket,Entertainment,250,UPI
+OCT015,2026-10-15,Music subscription,Entertainment,119,UPI
+OCT016,2026-10-16,Medicine,Healthcare,120,UPI
+OCT017,2026-10-17,Health check,Healthcare,300,UPI
+OCT018,2026-10-18,Tea and coffee,Food,180,Cash
+OCT019,2026-10-19,Dinner,Food,280,UPI
+OCT020,2026-10-20,Cab fare,Travel,200,UPI
+OCT021,2026-10-21,Laundry,Other,180,Cash
+OCT022,2026-10-22,Accessories,Shopping,480,UPI
+OCT023,2026-10-23,Printing,Education,110,Cash
+OCT024,2026-10-24,Vegetables,Food,360,Cash
+OCT025,2026-10-25,Household supplies,Housing,270,UPI
+OCT026,2026-10-26,Street food,Food,160,Cash
+OCT027,2026-10-27,Recharge,Bills,100,UPI
+OCT028,2026-10-28,Personal care,Other,250,UPI
