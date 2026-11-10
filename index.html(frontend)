@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Persona | Expense Analytics & IoT Dashboard</title>
+<!-- Chart.js for Dynamic Pie/Doughnut and Bar Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  :root {
+    --bg-main: #0b0f19;
+    --bg-card: rgba(30, 41, 59, 0.7);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.18);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-indigo: #6366f1;
+    --accent-purple: #a855f7;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* Toast Notification */
+  #toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid var(--accent-blue);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  #toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+    padding: 30px 6%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+  header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  header p {
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-size: 14px;
+  }
+
+  /* Main Layout */
+  main {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    padding: 24px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  }
+
+  h2 {
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-blue);
+  }
+  .stat-card.total::after { background: var(--accent-indigo); }
+  .stat-card.remaining::after { background: var(--accent-emerald); }
+  .stat-card.count::after { background: var(--accent-purple); }
+
+  .label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .number {
+    font-size: 30px;
+    font-weight: 800;
+    margin-top: 8px;
+    color: #ffffff;
+  }
+
+  .progress-container {
+    margin-top: 14px;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  input, select, button {
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    font: inherit;
+    outline: none;
+    background: rgba(15, 23, 42, 0.7);
+    color: #f8fafc;
+  }
+  input:focus, select:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+  }
+  input, select {
+    width: 100%;
+    margin-top: 6px;
+  }
+  select option {
+    background: #0f172a;
+    color: #f8fafc;
+  }
+
+  button {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: 0;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  }
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55);
+  }
+
+  .formgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .month-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .month-btn {
+    padding: 8px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 41, 59, 0.5);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 10px;
+    font-size: 13px;
+    box-shadow: none;
+  }
+  .month-btn.active {
+    background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+  }
+
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 850px) {
+    .analytics-grid { grid-template-columns: 1fr; }
+  }
+
+  .chart-container {
+    position: relative;
+    height: 260px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .barrow {
+    display: grid;
+    grid-template-columns: 110px 1fr 90px;
+    gap: 12px;
+    align-items: center;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+  .barrow .cat-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .barrow .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .track {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+  }
+  th {
+    background: rgba(15, 23, 42, 0.85);
+    color: #94a3b8;
+    font-weight: 600;
+    padding: 14px 16px;
+  }
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .small {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .iot {
+    border-left: 4px solid #14b8a6;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+  }
+
+  .danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    padding: 8px 14px;
+    font-size: 12px;
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .danger:hover {
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+  }
+
+  .badge-category {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+  }
+
+  .table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .search-input {
+    max-width: 280px;
+    margin: 0;
+  }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: #64748b;
+    font-size: 13px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .text-danger {
+    color: #f43f5e !important;
+  }
+</style>
+</head>
+<body>
+
+<div id="toast">
+  <i class="fa-solid fa-circle-check" style="color: var(--accent-emerald);"></i>
+  <span id="toastMsg">Action completed successfully</span>
+</div>
+
+<header>
+  <h1><i class="fa-solid fa-chart-pie"></i> Persona</h1>
+  <p>Personal Expense Pattern Analysis & IoT Analytics Dashboard</p>
+</header>
+
+<main>
+  <div class="card">
+    <h2><i class="fa-solid fa-wallet" style="color: var(--accent-blue);"></i> Welcome to your Expense Dashboard</h2>
+    <p class="small">Track spending habits, update your budget limit, and manage your expenses dynamically.</p>
+    <div style="margin-top: 16px;">
+      <label for="budget" class="label">Set Monthly Budget Limit (₹)</label>
+      <div class="formgrid" style="margin-top: 4px;">
+        <input id="budget" type="number" min="1" value="10000" placeholder="e.g. 10000">
+        <button onclick="updateBudget()"><i class="fa-solid fa-arrows-rotate"></i> Update Budget</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="month-tabs" id="monthTabs"></div>
+
+  <div class="grid">
+    <div class="card stat-card total">
+      <div class="label" id="totalLabel">Total Expenses</div>
+      <div class="number" id="total">₹0</div>
+      <div class="progress-container">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="budgetProgress"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card stat-card remaining">
+      <div class="label">Budget Remaining</div>
+      <div class="number" id="remaining">₹0</div>
+      <div class="small" id="percentRemaining" style="margin-top:6px;">100% left</div>
+    </div>
+
+    <div class="card stat-card count">
+      <div class="label">Transactions Recorded</div>
+      <div class="number" id="count">0</div>
+      <div class="small" style="margin-top:6px;">Total entries this month</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i class="fa-solid fa-circle-plus" style="color: var(--accent-emerald);"></i> Add a New Expense</h2>
+    <form id="expenseForm" onsubmit="addExpense(event)">
+      <div class="formgrid">
+        <div>
+          <label for="formMonth" class="label">Target Month</label>
+          <select id="formMonth">
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November" selected>November</option>
+          </select>
+        </div>
+        <div>
+          <label for="formDate" class="label">Date</label>
+          <input id="formDate" type="date" required>
+        </div>
+        <div>
+          <label for="formCategory" class="label">Category</label>
+          <input id="formCategory" placeholder="e.g. Food, Shopping" required>
+        </div>
+        <div>
+          <label for="formAmount" class="label">Amount (₹)</label>
+          <input id="formAmount" type="number" min="0.01" step="0.01" placeholder="200" required>
+        </div>
+      </div>
+      <button type="submit" style="margin-top: 14px;"><i class="fa-solid fa-plus"></i> Add Expense Entry</button>
+    </form>
+  </div>
+
+  <div class="analytics-grid">
+    <div class="card">
+      <h2><i class="fa-solid fa-chart-pie" style="color: var(--accent-purple);"></i> Spending Breakdown</h2>
+      <div class="chart-container">
+        <canvas id="expenseChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fa-solid fa-bars-staggered" style="color: var(--accent-indigo);"></i> Category Details</h2>
+      <div id="categories"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i class="fa-solid fa-chart-column" style="color: var(--accent-blue);"></i> Category Spending: Current vs Previous Month</h2>
+    <div style="position: relative; height: 300px; width: 100%;">
+      <canvas id="comparisonBarChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i class="fa-solid fa-lightbulb" style="color: var(--accent-amber);"></i> Expense Insights</h2>
+    <div id="insights" class="small" style="font-size: 15px;"></div>
+  </div>
+
+  <div class="card iot">
+    <h2><i class="fa-solid fa-bolt" style="color: #14b8a6;"></i> IoT Smart Meter Monitor</h2>
+    <span class="pill"><i class="fa-solid fa-wifi"></i> SIMULATED DEVICE DATA</span>
+    <p class="small" style="margin-top: 10px;">Simulated telemetry readings from an automated smart electricity node.</p>
+
+    <div class="grid" style="margin: 16px 0;">
+      <div>
+        <div class="label">Electricity Consumed</div>
+        <div class="number" id="units" style="color: #2dd4bf;">-- kWh</div>
+      </div>
+      <div>
+        <div class="label">Estimated Electricity Cost</div>
+        <div class="number" id="electricCost" style="color: #2dd4bf;">₹0</div>
+      </div>
+    </div>
+
+    <button type="button" onclick="fetchIoTMeter()" style="background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); border: 0;">
+      <i class="fa-solid fa-rotate"></i> Generate New Sample Reading
+    </button>
+    <p class="small" id="meterStatus" style="margin-top: 12px; font-style: italic;">Sample reading ready.</p>
+  </div>
+
+  <div class="card">
+    <div class="table-controls">
+      <h2><i class="fa-solid fa-receipt" style="color: var(--accent-blue);"></i> Transactions (<span id="tableMonthTitle">November</span>)</h2>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search transactions..." onkeyup="renderTable()">
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="transactions"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer>Persona Expense Pattern Analysis in IoT | Student Project Prototype</footer>
+
+<script>
+let monthlyData = [];
+let activeMonth = "November";
+let userBudgetLimit = 10000;
+let allTransactions = [];
+let pieChartInstance = null;
+let barChartInstance = null;
+
+const categoryColors = {
+  Food: '#38bdf8',
+  Travel: '#818cf8',
+  Shopping: '#c084fc',
+  Bills: '#f43f5e',
+  Education: '#34d399',
+  Housing: '#10b981',
+  Healthcare: '#a855f7',
+  Entertainment: '#f59e0b',
+  Other: '#fbbf24'
+};
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  if (toast) {
+    document.getElementById("toastMsg").textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 3000);
+  }
+}
+
+function money(n) {
+  return "₹" + Number(n).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+}
+
+function escapeText(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+async function fetchMonthlySummary() {
+  try {
+    const response = await fetch('/api/monthly-summary');
+    if (!response.ok) throw new Error("Failed to load monthly data");
+    monthlyData = await response.json();
+    
+    if (!monthlyData.some(m => m.month === activeMonth) && monthlyData.length > 0) {
+      activeMonth = monthlyData[monthlyData.length - 1].month;
+    }
+    
+    const activeObj = monthlyData.find(m => m.month === activeMonth);
+    if (activeObj && activeObj.budget) {
+      userBudgetLimit = activeObj.budget;
+      document.getElementById("budget").value = userBudgetLimit;
+    }
+
+    renderMonthTabs();
+    renderDashboard();
+  } catch (err) {
+    console.error(err);
+    showToast("Could not load backend datasets.");
+  }
+}
+
+async function fetchIoTMeter() {
+  try {
+    const response = await fetch('/api/iot-meter');
+    const data = await response.json();
+    document.getElementById("units").textContent = data.units + " kWh";
+    document.getElementById("electricCost").textContent = money(data.estimated_cost);
+    document.getElementById("meterStatus").textContent = "Live telemetry node connected (" + data.status + ").";
+    showToast("New IoT sample telemetry generated.");
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function updateBudget() {
+  const val = parseFloat(document.getElementById("budget").value);
+  if (isNaN(val) || val <= 0) {
+    showToast("Please enter a valid budget amount.");
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/update-budget', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ budget: val })
+    });
+    const data = await response.json();
+    if (data.success) {
+      userBudgetLimit = data.budget;
+      showToast("Monthly budget limit updated.");
+      renderDashboard();
+    }
+  } catch(e) {
+    console.error(e);
+    showToast("Failed to update budget.");
+  }
+}
+
+async function addExpense(event) {
+  event.preventDefault();
+  const month = document.getElementById("formMonth").value;
+  const date = document.getElementById("formDate").value;
+  const category = document.getElementById("formCategory").value;
+  const amount = document.getElementById("formAmount").value;
+
+  try {
+    const response = await fetch('/api/add-expense', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ month, date, category, amount })
+    });
+    const data = await response.json();
+    if (data.success) {
+      showToast("Expense added successfully!");
+      document.getElementById("formAmount").value = "";
+      document.getElementById("formCategory").value = "";
+      fetchMonthlySummary();
+    } else {
+      showToast("Error adding expense.");
+    }
+  } catch(e) {
+    console.error(e);
+    showToast("Server connection error.");
+  }
+}
+
+async function deleteTransaction(monthName, rowIndex) {
+  try {
+    const response = await fetch('/api/delete-expense', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ month: monthName, index: rowIndex })
+    });
+    const data = await response.json();
+    if (data.success) {
+      showToast("Transaction deleted.");
+      fetchMonthlySummary();
+    } else {
+      showToast("Could not delete entry.");
+    }
+  } catch(e) {
+    console.error(e);
+    showToast("Server connection error.");
+  }
+}
+
+function renderMonthTabs() {
+  const tabsEl = document.getElementById("monthTabs");
+  if (!tabsEl) return;
+  tabsEl.innerHTML = monthlyData.map(m => `
+    <button class="month-btn ${m.month === activeMonth ? 'active' : ''}" onclick="switchMonth('${m.month}')">
+      ${m.month}
+    </button>
+  `).join("");
+}
+
+function switchMonth(monthName) {
+  activeMonth = monthName;
+  document.getElementById("formMonth").value = activeMonth;
+  renderMonthTabs();
+  renderDashboard();
+}
+
+function updatePieChart(categorySums) {
+  const canvasEl = document.getElementById('expenseChart');
+  if (!canvasEl) return;
+  const ctx = canvasEl.getContext('2d');
+  
+  const labels = Object.keys(categorySums);
+  const data = Object.values(categorySums);
+  const backgroundColors = labels.map(cat => categoryColors[cat] || '#38bdf8');
+
+  if (pieChartInstance) pieChartInstance.destroy();
+
+  pieChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: backgroundColors,
+        borderWidth: 2,
+        borderColor: '#1e293b',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#f8fafc', font: { family: 'Plus Jakarta Sans', size: 12 }, padding: 12, usePointStyle: true }
+        }
+      },
+      cutout: '65%'
+    }
+  });
+}
+
+function updateComparisonBarChart(currentCats, prevCats, currentMonthName, prevMonthName) {
+  const canvasEl = document.getElementById('comparisonBarChart');
+  if (!canvasEl) return;
+  const ctx = canvasEl.getContext('2d');
+
+  const allCategories = [...new Set([...Object.keys(currentCats), ...Object.keys(prevCats)])];
+  const currentData = allCategories.map(cat => currentCats[cat] || 0);
+  const prevData = allCategories.map(cat => prevCats[cat] || 0);
+
+  if (barChartInstance) barChartInstance.destroy();
+
+  barChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: allCategories,
+      datasets: [
+        {
+          label: currentMonthName || 'Current Month',
+          data: currentData,
+          backgroundColor: '#38bdf8',
+          borderRadius: 6
+        },
+        {
+          label: prevMonthName || 'Previous Month',
+          data: prevData,
+          backgroundColor: '#818cf8',
+          borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } },
+          grid: { color: '#334155' }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: { color: '#f8fafc', font: { family: 'Plus Jakarta Sans', size: 12 } }
+        }
+      }
+    }
+  });
+}
+
+function renderDashboard() {
+  const currentMonthObj = monthlyData.find(m => m.month === activeMonth);
+  if (!currentMonthObj) return;
+
+  const currentIndex = monthlyData.findIndex(m => m.month === activeMonth);
+  const prevMonthObj = currentIndex > 0 ? monthlyData[currentIndex - 1] : null;
+  const prevMonthName = prevMonthObj ? prevMonthObj.month : "Previous Month";
+  const prevCategories = prevMonthObj ? prevMonthObj.categories : {};
+
+  const total = currentMonthObj.total;
+  const budget = userBudgetLimit;
+  const remaining = budget - total;
+  const isOverBudget = remaining < 0;
+  const pctUsed = budget > 0 ? Math.round((total / budget) * 100) : 100;
+
+  document.getElementById("totalLabel").textContent = `Total Expenses (${activeMonth})`;
+  document.getElementById("total").textContent = money(total);
+  document.getElementById("count").textContent = currentMonthObj.transaction_count;
+  document.getElementById("tableMonthTitle").textContent = activeMonth;
+
+  const progressFill = document.getElementById("budgetProgress");
+  if (progressFill) {
+    progressFill.style.width = Math.min(pctUsed, 100) + "%";
+    progressFill.style.background = isOverBudget ? 'var(--accent-rose)' : 'linear-gradient(90deg, #38bdf8, #818cf8)';
+  }
+
+  const remainingEl = document.getElementById("remaining");
+  remainingEl.textContent = money(remaining);
+  
+  const remainingTextNode = remainingEl.nextElementSibling;
+  if (isOverBudget) {
+    remainingEl.classList.add("text-danger");
+    if (remainingTextNode) {
+      remainingTextNode.textContent = `Over budget by ${pctUsed - 100}%`;
+      remainingTextNode.classList.add("text-danger");
+    }
+  } else {
+    remainingEl.classList.remove("text-danger");
+    if (remainingTextNode) {
+      remainingTextNode.textContent = `${Math.max(0, 100 - pctUsed)}% left`;
+      remainingTextNode.classList.remove("text-danger");
+    }
+  }
+
+  allTransactions = currentMonthObj.transactions || [];
+  renderTable();
+
+  const sums = currentMonthObj.categories || {};
+  updatePieChart(sums);
+  updateComparisonBarChart(sums, prevCategories, activeMonth, prevMonthName);
+
+  const cats = Object.entries(sums).sort((a,b) => b[1] - a[1]);
+  const categoriesEl = document.getElementById("categories");
+  if (categoriesEl) {
+    categoriesEl.innerHTML = cats.length ? cats.map(([name, value]) => `
+      <div class="barrow">
+        <span class="cat-tag">
+          <span class="dot" style="background:${categoryColors[name] || '#38bdf8'}"></span>
+          ${escapeText(name)}
+        </span>
+        <div class="track">
+          <div class="fill" style="width:${total ? (value / total * 100) : 0}%; background:${categoryColors[name] || '#38bdf8'}"></div>
+        </div>
+        <strong>${money(value)}</strong>
+      </div>`).join("") : '<p class="small" style="text-align:center; padding:20px;">No categories recorded for this month.</p>';
+  }
+
+  let comparisonText = "";
+  if (currentMonthObj.comparison_pct !== null && currentMonthObj.comparison_pct !== undefined) {
+    const compDir = currentMonthObj.comparison_pct >= 0 ? "increased" : "decreased";
+    comparisonText = ` Compared to last month, your spending has <strong>${compDir} by ${Math.abs(currentMonthObj.comparison_pct)}%</strong>.`;
+  }
+
+  const insightsEl = document.getElementById("insights");
+  if (insightsEl) {
+    insightsEl.innerHTML = `
+      Top spending category: <strong style="color:#38bdf8;">${escapeText(currentMonthObj.top_category)}</strong>.<br>
+      <em>Smart Saving Suggestion:</em> ${escapeText(currentMonthObj.saving_suggestion)}
+      ${comparisonText}
+    `;
+  }
+}
+
+function renderTable() {
+  const searchInputElem = document.getElementById("searchInput");
+  const filterText = searchInputElem ? searchInputElem.value.toLowerCase() : "";
+  
+  const filtered = allTransactions.filter(e => 
+    String(e.category).toLowerCase().includes(filterText) ||
+    String(e.date).includes(filterText) ||
+    String(e.amount).includes(filterText)
+  );
+
+  const transactionsEl = document.getElementById("transactions");
+  if (transactionsEl) {
+    transactionsEl.innerHTML = filtered.length
+      ? filtered.map(e => `
+        <tr>
+          <td><i class="fa-regular fa-calendar" style="margin-right:6px; color:#64748b;"></i>${escapeText(e.date)}</td>
+          <td>
+            <span class="badge-category" style="background:${(categoryColors[e.category] || '#94a3b8')}22; color:${categoryColors[e.category] || '#94a3b8'}; border: 1px solid ${(categoryColors[e.category] || '#94a3b8')}44;">
+              ${escapeText(e.category)}
+            </span>
+          </td>
+          <td style="font-weight:700;">${money(e.amount)}</td>
+          <td><button class="danger" onclick="deleteTransaction('${activeMonth}', ${e.index})"><i class="fa-solid fa-trash-can" style="font-size:11px;"></i> Delete</button></td>
+        </tr>
+      `).join("")
+      : '<tr><td colspan="4" style="text-align:center; color:#64748b; padding:20px;">No matching expense entries found.</td></tr>';
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("formDate").valueAsDate = new Date();
+  fetchMonthlySummary();
+  fetchIoTMeter();
+});
+</script>
+</body>
+</html>
