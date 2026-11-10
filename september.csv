@@ -1,0 +1,29 @@
+transaction_id,date,description,category,amount,payment_method
+SEP001,2026-09-01,Hostel fee,Housing,6500,UPI
+SEP002,2026-09-02,Electricity bill,Bills,710,UPI
+SEP003,2026-09-03,Internet bill,Bills,499,UPI
+SEP004,2026-09-04,Mobile recharge,Bills,299,UPI
+SEP005,2026-09-05,Groceries,Food,1450,UPI
+SEP006,2026-09-06,Lunch,Food,220,Cash
+SEP007,2026-09-07,Snacks,Food,180,Cash
+SEP008,2026-09-08,Bus pass,Travel,450,UPI
+SEP009,2026-09-09,Auto fare,Travel,240,Cash
+SEP010,2026-09-10,Notebook and pens,Education,350,UPI
+SEP011,2026-09-11,Online course,Education,799,UPI
+SEP012,2026-09-12,Jeans,Shopping,1100,UPI
+SEP013,2026-09-13,Skincare,Shopping,520,UPI
+SEP014,2026-09-14,Movie ticket,Entertainment,300,UPI
+SEP015,2026-09-15,Music subscription,Entertainment,119,UPI
+SEP016,2026-09-16,Medicine,Healthcare,250,UPI
+SEP017,2026-09-17,Doctor visit,Healthcare,0,UPI
+SEP018,2026-09-18,Tea and coffee,Food,210,Cash
+SEP019,2026-09-19,Dinner,Food,320,UPI
+SEP020,2026-09-20,Cab fare,Travel,300,UPI
+SEP021,2026-09-21,Laundry,Other,220,Cash
+SEP022,2026-09-22,Festival decor,Shopping,650,UPI
+SEP023,2026-09-23,Printing,Education,130,Cash
+SEP024,2026-09-24,Vegetables,Food,390,Cash
+SEP025,2026-09-25,Household supplies,Housing,300,UPI
+SEP026,2026-09-26,Street food,Food,190,Cash
+SEP027,2026-09-27,Recharge,Bills,100,UPI
+SEP028,2026-09-28,Personal care,Other,280,UPI
