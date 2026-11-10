@@ -1,0 +1,30 @@
+transaction_id,date,description,category,amount,payment_method
+AUG001,2026-08-01,Hostel fee,Housing,6500.0,UPI
+AUG002,2026-08-02,Electricity bill,Bills,620.0,UPI
+AUG003,2026-08-03,Internet bill,Bills,499.0,UPI
+AUG004,2026-08-04,Mobile recharge,Bills,299.0,UPI
+AUG005,2026-08-05,Groceries,Food,1250.0,UPI
+AUG006,2026-08-06,Lunch,Food,180.0,Cash
+AUG007,2026-08-07,Snacks,Food,120.0,Cash
+AUG008,2026-08-08,Bus pass,Travel,450.0,UPI
+AUG009,2026-08-09,Auto fare,Travel,160.0,Cash
+AUG010,2026-08-10,Notebook and pens,Education,280.0,UPI
+AUG011,2026-08-11,Course material,Education,550.0,UPI
+AUG012,2026-08-12,T-shirt,Shopping,650.0,UPI
+AUG013,2026-08-13,Skincare,Shopping,420.0,UPI
+AUG014,2026-08-14,Movie ticket,Entertainment,250.0,UPI
+AUG015,2026-08-15,Music subscription,Entertainment,119.0,UPI
+AUG016,2026-08-16,Medicine,Healthcare,180.0,UPI
+AUG017,2026-08-17,Doctor visit,Healthcare,400.0,UPI
+AUG018,2026-08-18,Tea and coffee,Food,160.0,Cash
+AUG019,2026-08-19,Dinner,Food,260.0,UPI
+AUG020,2026-08-20,Cab fare,Travel,220.0,UPI
+AUG021,2026-08-21,Laundry,Other,180.0,Cash
+AUG022,2026-08-22,Birthday gift,Shopping,500.0,UPI
+AUG023,2026-08-23,Printing,Education,90.0,Cash
+AUG024,2026-08-24,Vegetables,Food,340.0,Cash
+AUG025,2026-08-25,Household supplies,Housing,250.0,UPI
+AUG026,2026-08-26,Street food,Food,140.0,Cash
+AUG027,2026-08-27,Recharge,Bills,100.0,UPI
+AUG028,2026-08-28,Personal care,Other,230.0,UPI
+,2026-11-18,,grocerry,8000.0,
